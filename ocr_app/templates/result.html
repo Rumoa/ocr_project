@@ -1,0 +1,15 @@
+<!-- <h1>Extracted LaTeX Code</h1>
+<p>{{ latex_code }}</p> -->
+
+
+<div>
+    <h2>Extracted LaTeX Code:</h2>
+    <pre>{{ latex_code|escape }}</pre>
+</div>
+
+
+<h2>Rendered Math:</h2>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<div>
+    $$ {{ latex_code }} $$
+</div>

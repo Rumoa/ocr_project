@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Upload</title>
+    <style>
+        .upload-area {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+        }
+        .upload-area.dragover {
+            border-color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Upload or Paste an Image</h1>
+
+<!-- File Upload Form -->
+<form id="upload-form" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="upload-area" id="upload-area">
+        Drag & Drop an image here, paste it, or
+        <label for="file-upload" style="cursor:pointer; color:blue;">browse</label>
+        <input type="file" id="file-upload" name="file" accept="image/*" style="display:none;">
+    </div>
+    <textarea id="image-paste" name="image" style="display:none;"></textarea>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-upload');
+    const form = document.getElementById('upload-form');
+    const pasteArea = document.getElementById('image-paste');
+
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;  // Assign dropped files to input
+            form.submit();  // Auto-submit after drop
+        }
+    });
+
+    // Handle file selection via browse
+    fileInput.addEventListener('change', function () {
+        form.submit();  // Auto-submit after selecting a file
+    });
+
+    // Handle image pasting
+    document.addEventListener('paste', function (e) {
+        const clipboardItems = e.clipboardData.items;
+        for (let i = 0; i < clipboardItems.length; i++) {
+            if (clipboardItems[i].type.indexOf('image') !== -1) {
+                const file = clipboardItems[i].getAsFile();
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    pasteArea.value = event.target.result;  // base64 image data
+                    form.submit();  // Auto-submit after pasting
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
